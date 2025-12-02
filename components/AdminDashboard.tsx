@@ -13,17 +13,47 @@ import {
 import { api } from '../services/api';
 import Navbar from './Navbar';
 
-const ADMIN_TABS = [
-	'recursos',
-	'instituicoes',
-	'grupos',
-	'autores',
-	'categorias',
-	'palavras',
-	'usuarios',
-	'solicitacoes',
-	'logs',
+const ADMIN_SECTIONS = [
+	{
+		id: 'content',
+		label: 'Conteúdo',
+		description: 'Materiais, taxonomias e palavras-chave.',
+		tabs: [
+			{ id: 'recursos', label: 'Recursos educacionais' },
+			{ id: 'autores', label: 'Autores' },
+			{ id: 'categorias', label: 'Categorias' },
+			{ id: 'palavras', label: 'Palavras-chave' },
+		],
+	},
+	{
+		id: 'network',
+		label: 'Organizações',
+		description: 'Estruture instituições e grupos parceiros.',
+		tabs: [
+			{ id: 'instituicoes', label: 'Instituições' },
+			{ id: 'grupos', label: 'Grupos' },
+		],
+	},
+	{
+		id: 'operations',
+		label: 'Fluxo & Auditoria',
+		description: 'Monitore solicitações e registros do sistema.',
+		tabs: [
+			{ id: 'solicitacoes', label: 'Solicitações' },
+			{ id: 'logs', label: 'Logs do sistema' },
+		],
+	},
+	{
+		id: 'settings',
+		label: 'Configurações',
+		description: 'Gerencie a equipe e os níveis de acesso.',
+		tabs: [{ id: 'usuarios', label: 'Usuários & Permissões' }],
+	},
 ];
+
+const ADMIN_TABS = ADMIN_SECTIONS.flatMap((section) =>
+	section.tabs.map((tab) => tab.id)
+);
 
 const USER_LEVEL_LABEL_TO_BACKEND: Record<string, string> = {
 	Usuario: 'usuario',
@@ -97,6 +127,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 		label?: string;
 	} | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState(false);
+
+	const activeSection = ADMIN_SECTIONS.find((section) =>
+		section.tabs.some((tab) => tab.id === activeTab)
+	);
+	const activeTabMeta = activeSection?.tabs.find(
+		(tab) => tab.id === activeTab
+	);
+
+	const getCollectionForTab = () => {
+		switch (activeTab) {
+			case 'recursos':
+				return recursos;
+			case 'instituicoes':
+				return instituicoes;
+			case 'grupos':
+				return grupos;
+			case 'autores':
+				return autores;
+			case 'categorias':
+				return categorias;
+			case 'palavras':
+				return palavras;
+			case 'usuarios':
+				return usuarios;
+			case 'logs':
+				return logs;
+			case 'solicitacoes':
+				return solicitacoes;
+			default:
+				return [];
+		}
+	};
+
+	const activeCollection = getCollectionForTab();
+	const isReadOnlyTab = ['logs', 'solicitacoes'].includes(activeTab);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -292,609 +357,813 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-100 flex flex-col">
+		<div className="min-h-screen bg-slate-100 flex flex-col">
 			<Navbar isAdmin onLogout={onLogout} />
-
-			<main className="flex-grow container mx-auto px-4 py-8">
-				<div className="flex justify-between items-center mb-6">
-					<h1 className="text-3xl font-bold text-tedi-dark">
-						Painel Administrativo
-					</h1>
-					<div className="text-sm text-gray-600">
-						Logado como: <strong>{currentUser?.nome}</strong> (
-						{mapNivelForForm(currentUser?.nivel)})
+			<div className="flex flex-1 overflow-hidden">
+				<aside className="hidden lg:flex lg:flex-col w-72 bg-white border-r border-slate-200 p-6 gap-6">
+					<div>
+						<p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+							Painel
+						</p>
+						<p className="text-2xl font-bold text-tedi-dark">
+							Central TEDI
+						</p>
+						<p className="text-sm text-slate-500 mt-1">
+							Olá,{' '}
+							{currentUser?.nome?.split(' ')[0] ||
+								'Administrador'}
+						</p>
 					</div>
-				</div>
-
-				{/* Tab Navigation Scrollable */}
-				<div className="overflow-x-auto pb-4 mb-4">
-					<div className="flex space-x-2 min-w-max">
-						{ADMIN_TABS.map((tab) => (
-							<button
-								key={tab}
-								onClick={() => setActiveTab(tab)}
-								className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${
-									activeTab === tab
-										? 'bg-tedi-dark text-white'
-										: 'bg-white text-gray-600 hover:bg-gray-200'
-								}`}
-							>
-								{tab}
-							</button>
+					<nav className="flex-1 overflow-y-auto space-y-6 pr-2">
+						{ADMIN_SECTIONS.map((section) => (
+							<div key={section.id}>
+								<p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+									{section.label}
+								</p>
+								<p className="text-xs text-slate-400 mb-2">
+									{section.description}
+								</p>
+								<div className="space-y-1">
+									{section.tabs.map((tab) => {
+										const isActive = activeTab === tab.id;
+										return (
+											<button
+												key={tab.id}
+												onClick={() =>
+													setActiveTab(tab.id)
+												}
+												className={`w-full text-left px-4 py-3 rounded-2xl transition-all flex items-center justify-between ${
+													isActive
+														? 'bg-tedi-dark text-white shadow-lg shadow-tedi-dark/20'
+														: 'text-slate-600 hover:bg-slate-50'
+												}`}
+											>
+												<span className="text-sm font-medium">
+													{tab.label}
+												</span>
+												{isActive && (
+													<span className="text-[11px] uppercase tracking-widest">
+														ativo
+													</span>
+												)}
+											</button>
+										);
+									})}
+								</div>
+							</div>
 						))}
+					</nav>
+					<div className="border-t border-slate-200 pt-4 text-xs text-slate-500">
+						Logado como {currentUser?.nome || 'Usuário'} ·{' '}
+						{mapNivelForForm(currentUser?.nivel)}
 					</div>
-				</div>
+				</aside>
+				<main className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 space-y-6">
+					<div className="lg:hidden">
+						<label className="text-xs font-semibold text-slate-500 uppercase">
+							Selecione uma área
+						</label>
+						<select
+							value={activeTab}
+							onChange={(e) => setActiveTab(e.target.value)}
+							className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 bg-white"
+						>
+							{ADMIN_SECTIONS.flatMap((section) =>
+								section.tabs.map((tab) => (
+									<option key={tab.id} value={tab.id}>
+										{section.label} · {tab.label}
+									</option>
+								))
+							)}
+						</select>
+					</div>
 
-				{/* Main Content Area */}
-				<div className="bg-white rounded-xl shadow p-6">
-					<div className="flex justify-between items-center mb-4">
-						<h2 className="text-xl font-bold capitalize">
-							{activeTab}
-						</h2>
-						{activeTab !== 'logs' &&
-							activeTab !== 'solicitacoes' && (
+					<div className="bg-gradient-to-br from-tedi-dark to-tedi-light text-white rounded-3xl p-6 shadow-lg">
+						<p className="text-xs uppercase tracking-[0.3em] text-white/70">
+							{activeSection?.label || 'Visão geral'}
+						</p>
+						<h1 className="text-3xl font-bold mt-2">
+							{activeTabMeta?.label || 'Painel Administrativo'}
+						</h1>
+						<p className="text-sm text-white/80 mt-2 max-w-2xl">
+							{activeSection?.description ||
+								'Gerencie conteúdos, fluxos e configurações do ecossistema TEDI em um único lugar.'}
+						</p>
+						<div className="mt-6 flex flex-wrap gap-3">
+							{!isReadOnlyTab && (
 								<button
 									onClick={openNew}
-									className="bg-tedi-light text-white px-4 py-2 rounded hover:bg-tedi-dark transition"
+									className="bg-white/20 hover:bg-white/30 backdrop-blur rounded-2xl px-4 py-2 text-sm font-semibold"
 								>
-									+ Novo
+									+ Novo(a){' '}
+									{activeTabMeta?.label?.toLowerCase() ||
+										activeTab}
 								</button>
 							)}
+							<button
+								onClick={loadTabData}
+								className="bg-white text-tedi-dark rounded-2xl px-4 py-2 text-sm font-semibold hover:bg-white/90"
+							>
+								Atualizar dados
+							</button>
+						</div>
 					</div>
 
-					{/* --- RECURSOS TABLE --- */}
-					{activeTab === 'recursos' && (
-						<div className="overflow-x-auto">
-							<table className="w-full text-left border-collapse">
-								<thead className="bg-gray-50 border-b">
-									<tr>
-										<th className="p-3">ID</th>
-										<th className="p-3">Título</th>
-										<th className="p-3">Status</th>
-										<th className="p-3">Autor</th>
-										<th className="p-3">Ações</th>
-									</tr>
-								</thead>
-								<tbody>
-									{recursos.map((r) => (
-										<tr
-											key={r.recurso_id}
-											className="border-b hover:bg-gray-50"
-										>
-											<td className="p-3">
-												{r.recurso_id}
-											</td>
-											<td className="p-3">{r.titulo}</td>
-											<td className="p-3">
-												<span
-													className={`px-2 py-1 rounded text-xs ${
-														r.status === 'aprovado'
-															? 'bg-green-100 text-green-800'
-															: 'bg-yellow-100 text-yellow-800'
-													}`}
-												>
-													{r.status}
-												</span>
-											</td>
-											<td className="p-3">
-												{r.autores?.nome}
-											</td>
-											<td className="p-3 flex gap-2">
-												{r.status === 'pendente' && (
-													<button
-														onClick={() =>
-															handleApprove(
-																r.recurso_id
-															)
-														}
-														className="text-green-600 hover:underline"
-													>
-														Aprovar
-													</button>
-												)}
-												<button
-													onClick={() => openEdit(r)}
-													className="text-blue-600 hover:underline"
-												>
-													Editar
-												</button>
-												<button
-													onClick={() =>
-														openDeleteDialog(
-															r.recurso_id,
-															'recursos',
-															r.titulo
-														)
-													}
-													className="text-red-600 hover:underline"
-												>
-													Excluir
-												</button>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
+					<div className="grid gap-4 md:grid-cols-3">
+						<div className="bg-white rounded-2xl border border-slate-100 p-4">
+							<p className="text-xs uppercase tracking-widest text-slate-400">
+								Registros
+							</p>
+							<p className="text-3xl font-bold text-slate-900">
+								{activeCollection.length}
+							</p>
+							<p className="text-xs text-slate-500">
+								Itens em {activeTabMeta?.label || activeTab}
+							</p>
 						</div>
-					)}
+						<div className="bg-white rounded-2xl border border-slate-100 p-4">
+							<p className="text-xs uppercase tracking-widest text-slate-400">
+								Responsável
+							</p>
+							<p className="text-lg font-semibold text-slate-900">
+								{currentUser?.nome || 'Equipe TEDI'}
+							</p>
+							<p className="text-xs text-slate-500">
+								{mapNivelForForm(currentUser?.nivel)}
+							</p>
+						</div>
+						<div className="bg-white rounded-2xl border border-slate-100 p-4">
+							<p className="text-xs uppercase tracking-widest text-slate-400">
+								Última ação
+							</p>
+							<p className="text-lg font-semibold text-slate-900">
+								não monitorado
+							</p>
+							<p className="text-xs text-slate-500">
+								Use "Atualizar dados" para sincronizar
+							</p>
+						</div>
+					</div>
 
-					{/* --- INSTITUICOES TABLE --- */}
-					{activeTab === 'instituicoes' && (
-						<ul className="divide-y">
-							{instituicoes.map((i) => (
-								<li
-									key={i.instituicao_id}
-									className="p-3 flex justify-between items-center hover:bg-gray-50"
+					<section className="bg-white rounded-3xl shadow-sm border border-slate-100">
+						<header className="flex flex-col gap-2 border-b border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<p className="text-xs uppercase tracking-widest text-slate-400">
+									Visão atual
+								</p>
+								<h2 className="text-2xl font-semibold text-slate-900">
+									{activeTabMeta?.label || activeTab}
+								</h2>
+								<p className="text-sm text-slate-500">
+									{isReadOnlyTab
+										? 'Consulta e acompanhamento de registros.'
+										: 'Gerencie os registros e cadastre novos itens quando necessário.'}
+								</p>
+							</div>
+							{!isReadOnlyTab && (
+								<button
+									onClick={openNew}
+									className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-tedi-light text-white text-sm font-semibold hover:bg-tedi-dark"
 								>
-									<span>{i.nome}</span>
-									<div className="gap-2 flex">
+									Novo registro
+								</button>
+							)}
+						</header>
+						<div className="p-6">
+							{activeCollection.length === 0 ? (
+								<div className="text-center py-16">
+									<p className="text-lg font-semibold text-slate-800">
+										Nenhum registro encontrado
+									</p>
+									<p className="text-sm text-slate-500 mt-2">
+										{isReadOnlyTab
+											? 'Os dados desta seção ainda não foram carregados ou não existem registros.'
+											: 'Clique em "Novo registro" para cadastrar o primeiro item.'}
+									</p>
+									{!isReadOnlyTab && (
 										<button
-											onClick={() => openEdit(i)}
-											className="text-blue-600 text-sm"
+											onClick={openNew}
+											className="mt-6 inline-flex items-center px-4 py-2 rounded-2xl bg-tedi-dark text-white text-sm font-semibold"
 										>
-											Editar
+											Cadastrar primeiro item
 										</button>
-										<button
-											onClick={() =>
-												openDeleteDialog(
-													i.instituicao_id,
-													'instituicoes',
-													i.nome
-												)
-											}
-											className="text-red-600 text-sm"
-										>
-											Excluir
-										</button>
-									</div>
-								</li>
-							))}
-						</ul>
-					)}
-
-					{/* --- LOGS TABLE --- */}
-					{activeTab === 'logs' && (
-						<div className="overflow-x-auto">
-							<table className="w-full text-sm text-left">
-								<thead className="bg-gray-50 border-b">
-									<tr>
-										<th className="p-2">Data</th>
-										<th className="p-2">Usuário</th>
-										<th className="p-2">Ação</th>
-										<th className="p-2">Descrição</th>
-									</tr>
-								</thead>
-								<tbody>
-									{logs.map((log) => (
-										<tr
-											key={log.log_id}
-											className="border-b"
-										>
-											<td className="p-2">
-												{new Date(
-													log.tempo
-												).toLocaleString()}
-											</td>
-											<td className="p-2">
-												{log.usuarios?.nome ||
-													log.fk_usuario_id}
-											</td>
-											<td className="p-2 font-bold">
-												{log.acao}
-											</td>
-											<td className="p-2">
-												{log.descricao}
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					)}
-
-					{/* --- GENERIC LIST FOR OTHER TABS --- */}
-					{[
-						'grupos',
-						'autores',
-						'categorias',
-						'palavras',
-						'usuarios',
-					].includes(activeTab) && (
-						<ul className="divide-y">
-							{(activeTab === 'grupos'
-								? grupos
-								: activeTab === 'autores'
-								? autores
-								: activeTab === 'categorias'
-								? categorias
-								: activeTab === 'usuarios'
-								? usuarios
-								: palavras
-							).map((item: any) => {
-								const id = Object.values(item)[0] as number;
-								const label =
-									(item as any).nome ||
-									(item as any).palavra ||
-									(item as any).titulo;
-								return (
-									<li
-										key={id}
-										className="p-3 flex justify-between items-center hover:bg-gray-50"
-									>
-										<span>
-											{label}{' '}
-											{activeTab === 'usuarios' && (
-												<span className="text-xs text-gray-500">
-													({(item as any).email} ·{' '}
-													{mapNivelForForm(
-														(item as any).nivel
-													)}
-													)
-												</span>
-											)}
-										</span>
-										<div className="gap-2 flex">
-											<button
-												onClick={() => openEdit(item)}
-												className="text-blue-600 text-sm"
-											>
-												Editar
-											</button>
-											<button
-												onClick={() =>
-													openDeleteDialog(
-														id,
-														activeTab === 'palavras'
-															? 'palavrasChave'
-															: activeTab,
-														label
-													)
-												}
-												className="text-red-600 text-sm"
-											>
-												Excluir
-											</button>
+									)}
+								</div>
+							) : (
+								<React.Fragment>
+									{activeTab === 'recursos' && (
+										<div className="overflow-x-auto rounded-2xl border border-slate-100">
+											<table className="w-full text-left">
+												<thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-widest">
+													<tr>
+														<th className="px-4 py-3">
+															ID
+														</th>
+														<th className="px-4 py-3">
+															Título
+														</th>
+														<th className="px-4 py-3">
+															Status
+														</th>
+														<th className="px-4 py-3">
+															Autor
+														</th>
+														<th className="px-4 py-3">
+															Ações
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													{recursos.map((r) => (
+														<tr
+															key={r.recurso_id}
+															className="border-t border-slate-100 hover:bg-slate-50"
+														>
+															<td className="px-4 py-3 font-mono text-sm text-slate-500">
+																#{r.recurso_id}
+															</td>
+															<td className="px-4 py-3 font-semibold text-slate-800">
+																{r.titulo}
+															</td>
+															<td className="px-4 py-3">
+																<span
+																	className={`px-3 py-1 rounded-full text-xs font-semibold ${
+																		r.status ===
+																		'aprovado'
+																			? 'bg-emerald-100 text-emerald-700'
+																			: 'bg-amber-100 text-amber-700'
+																	}`}
+																>
+																	{r.status}
+																</span>
+															</td>
+															<td className="px-4 py-3 text-slate-600">
+																{r.autores
+																	?.nome ||
+																	'—'}
+															</td>
+															<td className="px-4 py-3 flex flex-wrap gap-3 text-sm">
+																{r.status ===
+																	'pendente' && (
+																	<button
+																		onClick={() =>
+																			handleApprove(
+																				r.recurso_id
+																			)
+																		}
+																		className="text-emerald-600 hover:underline"
+																	>
+																		Aprovar
+																	</button>
+																)}
+																<button
+																	onClick={() =>
+																		openEdit(
+																			r
+																		)
+																	}
+																	className="text-blue-600 hover:underline"
+																>
+																	Editar
+																</button>
+																<button
+																	onClick={() =>
+																		openDeleteDialog(
+																			r.recurso_id,
+																			'recursos',
+																			r.titulo
+																		)
+																	}
+																	className="text-rose-600 hover:underline"
+																>
+																	Excluir
+																</button>
+															</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
 										</div>
-									</li>
-								);
-							})}
-						</ul>
-					)}
-				</div>
+									)}
 
-				{/* --- MODAL FORM --- */}
-				{isFormOpen && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-						<div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-							<h2 className="text-2xl font-bold mb-4 capitalize">
-								{editingItem ? 'Editar' : 'Novo'} {activeTab}
-							</h2>
-							<form
-								key={formKey}
-								onSubmit={handleFormSubmit}
-								className="space-y-4"
-							>
-								{/* Dynamic Fields based on Active Tab */}
+									{activeTab === 'instituicoes' && (
+										<ul className="divide-y divide-slate-100">
+											{instituicoes.map((i) => (
+												<li
+													key={i.instituicao_id}
+													className="py-3 flex items-center justify-between"
+												>
+													<div>
+														<p className="font-medium text-slate-800">
+															{i.nome}
+														</p>
+														<p className="text-xs text-slate-500">
+															ID{' '}
+															{i.instituicao_id}
+														</p>
+													</div>
+													<div className="flex gap-2 text-sm">
+														<button
+															onClick={() =>
+																openEdit(i)
+															}
+															className="text-blue-600 hover:underline"
+														>
+															Editar
+														</button>
+														<button
+															onClick={() =>
+																openDeleteDialog(
+																	i.instituicao_id,
+																	'instituicoes',
+																	i.nome
+																)
+															}
+															className="text-rose-600 hover:underline"
+														>
+															Excluir
+														</button>
+													</div>
+												</li>
+											))}
+										</ul>
+									)}
 
-								{activeTab === 'instituicoes' && (
+									{activeTab === 'logs' && (
+										<div className="overflow-x-auto rounded-2xl border border-slate-100">
+											<table className="w-full text-sm text-left">
+												<thead className="bg-slate-50 uppercase tracking-widest text-[11px] text-slate-500">
+													<tr>
+														<th className="px-4 py-3">
+															Data
+														</th>
+														<th className="px-4 py-3">
+															Usuário
+														</th>
+														<th className="px-4 py-3">
+															Ação
+														</th>
+														<th className="px-4 py-3">
+															Descrição
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													{logs.map((log) => (
+														<tr
+															key={log.log_id}
+															className="border-t border-slate-100"
+														>
+															<td className="px-4 py-3">
+																{new Date(
+																	log.tempo
+																).toLocaleString()}
+															</td>
+															<td className="px-4 py-3 text-slate-700">
+																{log.usuarios
+																	?.nome ||
+																	log.fk_usuario_id}
+															</td>
+															<td className="px-4 py-3 font-semibold text-slate-900">
+																{log.acao}
+															</td>
+															<td className="px-4 py-3 text-slate-600">
+																{log.descricao}
+															</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									)}
+
+									{[
+										'grupos',
+										'autores',
+										'categorias',
+										'palavras',
+										'usuarios',
+									].includes(activeTab) && (
+										<ul className="divide-y divide-slate-100">
+											{(activeTab === 'grupos'
+												? grupos
+												: activeTab === 'autores'
+												? autores
+												: activeTab === 'categorias'
+												? categorias
+												: activeTab === 'usuarios'
+												? usuarios
+												: palavras
+											).map((item: any) => {
+												const id = Object.values(
+													item
+												)[0] as number;
+												const label =
+													(item as any).nome ||
+													(item as any).palavra ||
+													(item as any).titulo;
+												return (
+													<li
+														key={id}
+														className="py-3 flex items-center justify-between"
+													>
+														<div>
+															<p className="font-medium text-slate-800">
+																{label}
+															</p>
+															{activeTab ===
+																'usuarios' && (
+																<p className="text-xs text-slate-500">
+																	{
+																		(
+																			item as any
+																		).email
+																	}{' '}
+																	·{' '}
+																	{mapNivelForForm(
+																		(
+																			item as any
+																		).nivel
+																	)}
+																</p>
+															)}
+														</div>
+														<div className="flex gap-2 text-sm">
+															<button
+																onClick={() =>
+																	openEdit(
+																		item
+																	)
+																}
+																className="text-blue-600 hover:underline"
+															>
+																Editar
+															</button>
+															<button
+																onClick={() =>
+																	openDeleteDialog(
+																		id,
+																		activeTab ===
+																			'palavras'
+																			? 'palavrasChave'
+																			: activeTab,
+																		label
+																	)
+																}
+																className="text-rose-600 hover:underline"
+															>
+																Excluir
+															</button>
+														</div>
+													</li>
+												);
+											})}
+										</ul>
+									)}
+
+									{activeTab === 'solicitacoes' && (
+										<ul className="divide-y divide-slate-100">
+											{solicitacoes.map((sol) => (
+												<li
+													key={sol.solicitacao_id}
+													className="py-3"
+												>
+													<p className="font-semibold text-slate-800">
+														#{sol.solicitacao_id} ·{' '}
+														{sol.tipo}
+													</p>
+													<p className="text-sm text-slate-500">
+														Status: {sol.status} ·
+														Recurso{' '}
+														{sol.fk_recurso_id}
+													</p>
+												</li>
+											))}
+										</ul>
+									)}
+								</React.Fragment>
+							)}
+						</div>
+					</section>
+				</main>
+			</div>
+
+			{/* --- MODAL FORM --- */}
+			{isFormOpen && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+					<div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+						<h2 className="text-2xl font-bold mb-4 capitalize">
+							{editingItem ? 'Editar' : 'Novo'} {activeTab}
+						</h2>
+						<form
+							key={formKey}
+							onSubmit={handleFormSubmit}
+							className="space-y-4"
+						>
+							{/* Dynamic Fields based on Active Tab */}
+
+							{activeTab === 'instituicoes' && (
+								<input
+									name="nome"
+									placeholder="Nome da Instituição"
+									defaultValue={editingItem?.nome}
+									required
+									className="w-full p-2 border rounded"
+								/>
+							)}
+
+							{activeTab === 'grupos' && (
+								<>
 									<input
 										name="nome"
-										placeholder="Nome da Instituição"
+										placeholder="Nome do Grupo"
 										defaultValue={editingItem?.nome}
 										required
 										className="w-full p-2 border rounded"
 									/>
-								)}
-
-								{activeTab === 'grupos' && (
-									<>
-										<input
-											name="nome"
-											placeholder="Nome do Grupo"
-											defaultValue={editingItem?.nome}
-											required
-											className="w-full p-2 border rounded"
-										/>
-										<textarea
-											name="descricao"
-											placeholder="Descrição"
-											defaultValue={
-												editingItem?.descricao
-											}
-											className="w-full p-2 border rounded"
-										/>
-										<select
-											name="fk_instituicao_id"
-											defaultValue={
-												editingItem?.fk_instituicao_id
-											}
-											required
-											className="w-full p-2 border rounded"
-										>
-											<option value="">
-												Selecione Instituição
+									<textarea
+										name="descricao"
+										placeholder="Descrição"
+										defaultValue={editingItem?.descricao}
+										className="w-full p-2 border rounded"
+									/>
+									<select
+										name="fk_instituicao_id"
+										defaultValue={
+											editingItem?.fk_instituicao_id
+										}
+										required
+										className="w-full p-2 border rounded"
+									>
+										<option value="">
+											Selecione Instituição
+										</option>
+										{instituicoes.map((i) => (
+											<option
+												key={i.instituicao_id}
+												value={i.instituicao_id}
+											>
+												{i.nome}
 											</option>
-											{instituicoes.map((i) => (
-												<option
-													key={i.instituicao_id}
-													value={i.instituicao_id}
-												>
-													{i.nome}
-												</option>
-											))}
-										</select>
-									</>
-								)}
+										))}
+									</select>
+								</>
+							)}
 
-								{activeTab === 'autores' && (
-									<>
-										<input
-											name="nome"
-											placeholder="Nome do Autor"
-											defaultValue={editingItem?.nome}
-											required
-											className="w-full p-2 border rounded"
-										/>
-										<textarea
-											name="biografia"
-											placeholder="Biografia"
-											defaultValue={
-												editingItem?.biografia
-											}
-											className="w-full p-2 border rounded"
-										/>
-									</>
-								)}
-
-								{activeTab === 'categorias' && (
-									<>
-										<input
-											name="nome"
-											placeholder="Nome da Categoria"
-											defaultValue={editingItem?.nome}
-											required
-											className="w-full p-2 border rounded"
-										/>
-										<textarea
-											name="descricao"
-											placeholder="Descrição"
-											defaultValue={
-												editingItem?.descricao
-											}
-											className="w-full p-2 border rounded"
-										/>
-									</>
-								)}
-
-								{activeTab === 'palavras' && (
+							{activeTab === 'autores' && (
+								<>
 									<input
-										name="palavra"
-										placeholder="Palavra Chave"
-										defaultValue={editingItem?.palavra}
+										name="nome"
+										placeholder="Nome do Autor"
+										defaultValue={editingItem?.nome}
 										required
 										className="w-full p-2 border rounded"
 									/>
-								)}
+									<textarea
+										name="biografia"
+										placeholder="Biografia"
+										defaultValue={editingItem?.biografia}
+										className="w-full p-2 border rounded"
+									/>
+								</>
+							)}
 
-								{activeTab === 'usuarios' && (
-									<>
+							{activeTab === 'categorias' && (
+								<>
+									<input
+										name="nome"
+										placeholder="Nome da Categoria"
+										defaultValue={editingItem?.nome}
+										required
+										className="w-full p-2 border rounded"
+									/>
+									<textarea
+										name="descricao"
+										placeholder="Descrição"
+										defaultValue={editingItem?.descricao}
+										className="w-full p-2 border rounded"
+									/>
+								</>
+							)}
+
+							{activeTab === 'palavras' && (
+								<input
+									name="palavra"
+									placeholder="Palavra Chave"
+									defaultValue={editingItem?.palavra}
+									required
+									className="w-full p-2 border rounded"
+								/>
+							)}
+
+							{activeTab === 'usuarios' && (
+								<>
+									<input
+										name="nome"
+										placeholder="Nome"
+										defaultValue={editingItem?.nome ?? ''}
+										required
+										className="w-full p-2 border rounded"
+									/>
+									<input
+										name="email"
+										type="email"
+										placeholder="Email"
+										defaultValue={editingItem?.email ?? ''}
+										autoComplete="off"
+										required
+										className="w-full p-2 border rounded"
+									/>
+									{!editingItem && (
 										<input
-											name="nome"
-											placeholder="Nome"
-											defaultValue={
-												editingItem?.nome ?? ''
-											}
+											name="senha_hash"
+											type="password"
+											placeholder="Senha"
+											autoComplete="new-password"
 											required
 											className="w-full p-2 border rounded"
 										/>
-										<input
-											name="email"
-											type="email"
-											placeholder="Email"
-											defaultValue={
-												editingItem?.email ?? ''
-											}
-											autoComplete="off"
-											required
-											className="w-full p-2 border rounded"
-										/>
-										{!editingItem && (
-											<input
-												name="senha_hash"
-												type="password"
-												placeholder="Senha"
-												autoComplete="new-password"
-												required
-												className="w-full p-2 border rounded"
-											/>
+									)}
+									<select
+										name="nivel"
+										defaultValue={mapNivelForForm(
+											editingItem?.nivel
 										)}
-										<select
-											name="nivel"
-											defaultValue={mapNivelForForm(
-												editingItem?.nivel
-											)}
-											className="w-full p-2 border rounded"
-										>
-											<option value="Usuario">
-												Usuario
-											</option>
-											<option value="Colaborador">
-												Colaborador
-											</option>
-											<option value="Administrador">
-												Administrador
-											</option>
-										</select>
-										<select
-											name="fk_grupo_id"
-											defaultValue={
-												editingItem?.fk_grupo_id ?? ''
-											}
-											required
-											className="w-full p-2 border rounded"
-										>
-											<option value="">
-												Selecione Grupo
-											</option>
-											{grupos.map((g) => (
-												<option
-													key={g.grupo_id}
-													value={g.grupo_id}
-												>
-													{g.nome}
-												</option>
-											))}
-										</select>
-									</>
-								)}
-
-								{activeTab === 'recursos' && (
-									<>
-										<input
-											name="titulo"
-											placeholder="Título"
-											defaultValue={editingItem?.titulo}
-											required
-											className="w-full p-2 border rounded"
-										/>
-										<textarea
-											name="descricao"
-											placeholder="Descrição"
-											defaultValue={
-												editingItem?.descricao
-											}
-											required
-											className="w-full p-2 border rounded"
-										/>
-										<div className="grid grid-cols-2 gap-2">
-											<select
-												name="tipo_recurso"
-												defaultValue={
-													editingItem?.tipo_recurso
-												}
-												className="w-full p-2 border rounded"
+										className="w-full p-2 border rounded"
+									>
+										<option value="Usuario">Usuario</option>
+										<option value="Colaborador">
+											Colaborador
+										</option>
+										<option value="Administrador">
+											Administrador
+										</option>
+									</select>
+									<select
+										name="fk_grupo_id"
+										defaultValue={
+											editingItem?.fk_grupo_id ?? ''
+										}
+										required
+										className="w-full p-2 border rounded"
+									>
+										<option value="">
+											Selecione Grupo
+										</option>
+										{grupos.map((g) => (
+											<option
+												key={g.grupo_id}
+												value={g.grupo_id}
 											>
-												<option value="arquivo">
-													Arquivo
-												</option>
-												<option value="link_externo">
-													Link Externo
-												</option>
-											</select>
-											<input
-												name="formato_arquivo"
-												placeholder="Formato (PDF...)"
-												defaultValue={
-													editingItem?.formato_arquivo
-												}
-												className="w-full p-2 border rounded"
-											/>
-										</div>
+												{g.nome}
+											</option>
+										))}
+									</select>
+								</>
+							)}
+
+							{activeTab === 'recursos' && (
+								<>
+									<input
+										name="titulo"
+										placeholder="Título"
+										defaultValue={editingItem?.titulo}
+										required
+										className="w-full p-2 border rounded"
+									/>
+									<textarea
+										name="descricao"
+										placeholder="Descrição"
+										defaultValue={editingItem?.descricao}
+										required
+										className="w-full p-2 border rounded"
+									/>
+									<div className="grid grid-cols-2 gap-2">
+										<select
+											name="tipo_recurso"
+											defaultValue={
+												editingItem?.tipo_recurso
+											}
+											className="w-full p-2 border rounded"
+										>
+											<option value="arquivo">
+												Arquivo
+											</option>
+											<option value="link_externo">
+												Link Externo
+											</option>
+										</select>
 										<input
-											name="caminho"
-											placeholder="URL / Caminho"
-											defaultValue={editingItem?.caminho}
-											required
+											name="formato_arquivo"
+											placeholder="Formato (PDF...)"
+											defaultValue={
+												editingItem?.formato_arquivo
+											}
 											className="w-full p-2 border rounded"
 										/>
+									</div>
+									<input
+										name="caminho"
+										placeholder="URL / Caminho"
+										defaultValue={editingItem?.caminho}
+										required
+										className="w-full p-2 border rounded"
+									/>
 
-										<select
-											name="fk_autor_id"
-											defaultValue={
-												editingItem?.fk_autor_id
-											}
-											required
-											className="w-full p-2 border rounded"
-										>
-											<option value="">
-												Selecione Autor
-											</option>
-											{autores.map((a) => (
-												<option
-													key={a.autor_id}
-													value={a.autor_id}
-												>
-													{a.nome}
-												</option>
-											))}
-										</select>
-										<select
-											name="fk_categoria_id"
-											defaultValue={
-												editingItem?.fk_categoria_id
-											}
-											required
-											className="w-full p-2 border rounded"
-										>
-											<option value="">
-												Selecione Categoria
-											</option>
-											{categorias.map((c) => (
-												<option
-													key={c.categoria_id}
-													value={c.categoria_id}
-												>
-													{c.nome}
-												</option>
-											))}
-										</select>
-									</>
-								)}
-
-								<div className="flex justify-end gap-2 pt-4 border-t">
-									<button
-										type="button"
-										onClick={closeForm}
-										className="px-4 py-2 text-gray-600"
+									<select
+										name="fk_autor_id"
+										defaultValue={editingItem?.fk_autor_id}
+										required
+										className="w-full p-2 border rounded"
 									>
-										Cancelar
-									</button>
-									<button
-										type="submit"
-										className="px-4 py-2 bg-tedi-dark text-white rounded font-bold"
+										<option value="">
+											Selecione Autor
+										</option>
+										{autores.map((a) => (
+											<option
+												key={a.autor_id}
+												value={a.autor_id}
+											>
+												{a.nome}
+											</option>
+										))}
+									</select>
+									<select
+										name="fk_categoria_id"
+										defaultValue={
+											editingItem?.fk_categoria_id
+										}
+										required
+										className="w-full p-2 border rounded"
 									>
-										Salvar
-									</button>
-								</div>
-							</form>
-						</div>
-					</div>
-				)}
+										<option value="">
+											Selecione Categoria
+										</option>
+										{categorias.map((c) => (
+											<option
+												key={c.categoria_id}
+												value={c.categoria_id}
+											>
+												{c.nome}
+											</option>
+										))}
+									</select>
+								</>
+							)}
 
-				{/* --- DELETE CONFIRMATION MODAL --- */}
-				{deleteDialog && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-						<div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-							<h3 className="text-2xl font-bold text-red-600 mb-2">
-								Confirmar exclusão
-							</h3>
-							<p className="text-gray-700 mb-6">
-								Tem certeza de que deseja excluir{' '}
-								<span className="font-semibold">
-									{deleteDialog.label || 'este item'}
-								</span>
-								? Esta ação não pode ser desfeita.
-							</p>
-							<div className="flex justify-end gap-3">
+							<div className="flex justify-end gap-2 pt-4 border-t">
 								<button
-									onClick={handleDeleteCancel}
-									disabled={deleteLoading}
-									className="px-4 py-2 rounded border border-gray-300 text-gray-700 disabled:opacity-50"
+									type="button"
+									onClick={closeForm}
+									className="px-4 py-2 text-gray-600"
 								>
 									Cancelar
 								</button>
 								<button
-									onClick={handleDeleteConfirm}
-									disabled={deleteLoading}
-									className="px-4 py-2 rounded bg-red-600 text-white font-bold disabled:opacity-50"
+									type="submit"
+									className="px-4 py-2 bg-tedi-dark text-white rounded font-bold"
 								>
-									{deleteLoading ? 'Excluindo...' : 'Excluir'}
+									Salvar
 								</button>
 							</div>
+						</form>
+					</div>
+				</div>
+			)}
+
+			{/* --- DELETE CONFIRMATION MODAL --- */}
+			{deleteDialog && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+					<div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+						<h3 className="text-2xl font-bold text-red-600 mb-2">
+							Confirmar exclusão
+						</h3>
+						<p className="text-gray-700 mb-6">
+							Tem certeza de que deseja excluir{' '}
+							<span className="font-semibold">
+								{deleteDialog.label || 'este item'}
+							</span>
+							? Esta ação não pode ser desfeita.
+						</p>
+						<div className="flex justify-end gap-3">
+							<button
+								onClick={handleDeleteCancel}
+								disabled={deleteLoading}
+								className="px-4 py-2 rounded border border-gray-300 text-gray-700 disabled:opacity-50"
+							>
+								Cancelar
+							</button>
+							<button
+								onClick={handleDeleteConfirm}
+								disabled={deleteLoading}
+								className="px-4 py-2 rounded bg-red-600 text-white font-bold disabled:opacity-50"
+							>
+								{deleteLoading ? 'Excluindo...' : 'Excluir'}
+							</button>
 						</div>
 					</div>
-				)}
-			</main>
+				</div>
+			)}
 		</div>
 	);
 };
