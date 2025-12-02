@@ -150,6 +150,10 @@ export const api = {
 
 	palavrasChave: {
 		getAll: () => fetch(`${API_URL}/palavras-chave`).then(handleResponse),
+		buscar: (termo: string) =>
+			fetch(
+				`${API_URL}/palavras-chave/buscar/${encodeURIComponent(termo)}`
+			).then(handleResponse),
 		create: (data: any) =>
 			fetch(`${API_URL}/palavras-chave`, {
 				method: 'POST',

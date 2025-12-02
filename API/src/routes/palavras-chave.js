@@ -11,6 +11,12 @@ const PALAVRA_TABLE_CANDIDATES = [
 	process.env.PALAVRA_CHAVE_TABLE,
 	process.env.PALAVRAS_TABLE,
 	process.env.PALAVRA_TABLE,
+	'tb_palavra_chave',
+	'tb_palavra_chaves',
+	'tb_palavraChave',
+	'tb_palavraChaves',
+	'tb_palavra',
+	'tb_palavras_chaves',
 	'palavraChave',
 	'palavrasChave',
 	'palavra_chave',
@@ -110,6 +116,33 @@ router.get('/', async (req, res) => {
 	try {
 		const { data, error } = await runPalavraQuery((table) =>
 			supabase.from(table).select('*').order('palavra')
+		);
+
+		if (error) throw error;
+		res.json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
+// GET buscar palavras-chave por termo
+router.get('/buscar/:termo', async (req, res) => {
+	try {
+		const termo = (req.params.termo || '').trim();
+		if (!termo) {
+			return res
+				.status(400)
+				.json({ error: 'Informe um termo para a busca.' });
+		}
+
+		const likeTerm = `%${termo}%`;
+		const { data, error } = await runPalavraQuery((table) =>
+			supabase
+				.from(table)
+				.select('*')
+				.ilike('palavra', likeTerm)
+				.order('palavra')
+				.limit(20)
 		);
 
 		if (error) throw error;
