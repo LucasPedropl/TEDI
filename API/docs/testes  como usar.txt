@@ -1,0 +1,93 @@
+testes / como usar
+
+// POST /api/recursos-educacionais
+{
+  "titulo": "Introdução à Programação",
+  "descricao": "Material introdutório sobre programação",
+  "tipo_recurso": "arquivo",
+  "formato_arquivo": "pdf",
+  "caminho": "/arquivos/intro-programacao.pdf",
+  "status": "pendente",
+  "fk_usuario_id_publicador": 1,
+  "fk_autor_id": 1,
+  "fk_categoria_id": 1,
+  "fk_grupo_id": 1
+}
+
+// PUT /api/recursos-educacionais/1/aprovar
+{
+  "fk_usuario_id_aprovador": 2
+}
+
+// POST /api/solicitacoes-aprovacao
+{
+  "fk_colaborador_id": 1,
+  "fk_recurso_id": 1,
+  "tipo": "Edicao",
+  "status": "Pendente"
+}
+
+// GET /api/recursos-educacionais/status/aprovado
+// Retorna todos os recursos aprovados
+
+// GET /api/categorias/1/estatisticas
+// Retorna:
+{
+  "categoria": {
+    "categoria_id": 1,
+    "nome": "Programação",
+    "descricao": "Recursos sobre programação"
+  },
+  "estatisticas": {
+    "total": 15,
+    "aprovados": 12,
+    "pendentes": 2,
+    "rejeitados": 1
+  }
+}
+
+// POST /api/recursos-educacionais
+{
+  "titulo": "Introdução à Programação",
+  "descricao": "Material introdutório sobre programação",
+  "tipo_recurso": "arquivo",
+  "formato_arquivo": "pdf",
+  "caminho": "/arquivos/intro-programacao.pdf",
+  "status": "pendente",
+  "fk_usuario_id_publicador": 1,
+  "fk_autor_id": 1,
+  "fk_categoria_id": 1,
+  "fk_grupo_id": 1
+}
+
+// PUT /api/recursos-educacionais/1/aprovar
+{
+  "fk_usuario_id_aprovador": 2
+}
+
+// POST /api/solicitacoes-aprovacao
+{
+  "fk_colaborador_id": 1,
+  "fk_recurso_id": 1,
+  "tipo": "Edicao",
+  "status": "Pendente"
+}
+
+// GET /api/recursos-educacionais/status/aprovado
+// Retorna todos os recursos aprovados
+
+// GET /api/categorias/1/estatisticas
+// Retorna:
+{
+  "categoria": {
+    "categoria_id": 1,
+    "nome": "Programação",
+    "descricao": "Recursos sobre programação"
+  },
+  "estatisticas": {
+    "total": 15,
+    "aprovados": 12,
+    "pendentes": 2,
+    "rejeitados": 1
+  }
+}

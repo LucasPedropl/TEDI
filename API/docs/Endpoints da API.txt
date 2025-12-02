@@ -1,0 +1,92 @@
+Endpoints da API
+
+🏢 Instituições
+
+Método	Endpoint	Descrição
+GET	/api/instituicoes	Listar todas instituições
+GET	/api/instituicoes/:id	Buscar instituição por ID
+POST	/api/instituicoes	Criar nova instituição
+PUT	/api/instituicoes/:id	Atualizar instituição
+DELETE	/api/instituicoes/:id	Excluir instituição
+
+👥 Grupos
+
+Método	Endpoint	Descrição
+GET	/api/grupos	Listar todos grupos
+GET	/api/grupos/:id	Buscar grupo por ID
+POST	/api/grupos	Criar novo grupo
+PUT	/api/grupos/:id	Atualizar grupo
+DELETE	/api/grupos/:id	Excluir grupo
+
+✍️ Autores
+
+Método	Endpoint	Descrição
+GET	/api/autores	Listar todos autores
+GET	/api/autores/:id	Buscar autor por ID
+POST	/api/autores	Criar novo autor
+PUT	/api/autores/:id	Atualizar autor
+DELETE	/api/autores/:id	Excluir autor
+
+📚 Categorias
+
+Método	Endpoint	Descrição
+GET	/api/categorias	Listar todas categorias
+GET	/api/categorias/:id	Buscar categoria por ID
+POST	/api/categorias	Criar nova categoria
+PUT	/api/categorias/:id	Atualizar categoria
+DELETE	/api/categorias/:id	Excluir categoria
+GET	/api/categorias/:id/estatisticas	Estatísticas da categoria
+
+🔤 Palavras-Chave
+
+Método	Endpoint	Descrição
+GET	/api/palavras-chave	Listar todas palavras-chave
+GET	/api/palavras-chave/:id	Buscar palavra-chave por ID
+POST	/api/palavras-chave	Criar nova palavra-chave
+PUT	/api/palavras-chave/:id	Atualizar palavra-chave
+DELETE	/api/palavras-chave/:id	Excluir palavra-chave
+GET	/api/palavras-chave/buscar/:termo	Buscar palavras-chave
+
+👤 Usuários
+
+Método	Endpoint	Descrição
+GET	/api/usuarios	Listar todos usuários
+GET	/api/usuarios/:id	Buscar usuário por ID
+POST	/api/usuarios	Criar novo usuário
+PUT	/api/usuarios/:id	Atualizar usuário
+DELETE	/api/usuarios/:id	Excluir usuário
+GET	/api/usuarios/nivel/:nivel	Usuários por nível
+GET	/api/usuarios/:id/estatisticas	Estatísticas do usuário
+PUT	/api/usuarios/:id/senha	Atualizar senha
+
+📖 Recursos Educacionais
+
+Método	Endpoint	Descrição
+GET	/api/recursos-educacionais	Listar todos recursos
+GET	/api/recursos-educacionais/:id	Buscar recurso por ID
+POST	/api/recursos-educacionais	Criar novo recurso
+PUT	/api/recursos-educacionais/:id	Atualizar recurso
+DELETE	/api/recursos-educacionais/:id	Excluir recurso
+PUT	/api/recursos-educacionais/:id/aprovar	Aprovar recurso
+GET	/api/recursos-educacionais/status/:status	Recursos por status
+
+📋 Solicitações de Aprovação
+
+Método	Endpoint	Descrição
+GET	/api/solicitacoes-aprovacao	Listar todas solicitações
+GET	/api/solicitacoes-aprovacao/:id	Buscar solicitação por ID
+POST	/api/solicitacoes-aprovacao	Criar nova solicitação
+PUT	/api/solicitacoes-aprovacao/:id/status	Atualizar status
+DELETE	/api/solicitacoes-aprovacao/:id	Excluir solicitação
+GET	/api/solicitacoes-aprovacao/status/:status	Solicitações por status
+
+📊 Logs
+
+Método	Endpoint	Descrição
+GET	/api/log	Listar todos logs
+GET	/api/log/:id	Buscar log por ID
+POST	/api/log	Criar novo log
+GET	/api/log/usuario/:usuario_id	Logs por usuário
+GET	/api/log/periodo/:data_inicio/:data_fim	Logs por período
+GET	/api/log/estatisticas/geral	Estatísticas de logs
+DELETE	/api/log/limpar/:dias	Limpar logs antigos
