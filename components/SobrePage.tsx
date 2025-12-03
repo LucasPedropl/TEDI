@@ -27,9 +27,7 @@ const SobrePage: React.FC = () => {
             <div className="bg-white p-8 rounded-xl shadow-sm border-l-4 border-tedi-light">
               <h2 className="text-2xl font-bold text-tedi-dark mb-4">O Que É?</h2>
               <p className="text-gray-600 leading-relaxed">
-                O GERAS (Repositório TEDI) é uma plataforma dedicada à curadoria, armazenamento e 
-                disseminação de recursos educacionais voltados para Tecnologias Digitais. 
-                Nossa missão é facilitar o acesso a materiais de qualidade para professores e alunos.
+                O GERAS (Gerenciador de Recursos Educacionais Abertos e Sustentáveis) é uma iniciativa para centralizar e facilitar o acesso a todos os materiais criados pelo Projeto TEDI (Tecnologia e Educação para a Terceira Idade) da UTFPR. Nosso objetivo é oferecer um local único onde idosos, voluntários e a comunidade em geral possam encontrar, utilizar e compartilhar conhecimento, promovendo a inclusão digital e a autonomia da terceira idade.
               </p>
             </div>
 
@@ -74,7 +72,7 @@ const SobrePage: React.FC = () => {
             
             <div className="mt-8 pt-6 border-t border-gray-100">
               <p className="text-sm text-gray-500 mb-4">Quer contribuir com o repositório?</p>
-              <a href="https://www.instagram.com/projeto.tedi" className="block w-full bg-tedi-light text-white text-center py-2 rounded-lg hover:bg-tedi-hover transition-colors font-medium">
+              <a href="https://www.instagram.com/projeto_tedi" target="_blank" rel="noopener noreferrer" className="block w-full bg-tedi-light text-white text-center py-2 rounded-lg hover:bg-tedi-hover transition-colors font-medium">
                 Entre em contato conosco: Instagram
               </a>
             </div>

@@ -395,8 +395,29 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 					break;
 				}
 				case 'solicitacoes': {
-					const solData = await api.solicitacoes.getAll();
-					setSolicitacoes(solData);
+					const [solData, recData] = await Promise.all([
+						api.solicitacoes.getAll(),
+						api.recursos.getAll(),
+					]);
+
+					const pendingResources = recData.filter(
+						(r: any) => r.status === 'pendente'
+					);
+					const pendingAsSolicitations = pendingResources.map(
+						(r: any) => ({
+							solicitacao_id: -r.recurso_id, // ID temporário negativo para evitar colisão
+							fk_colaborador_id: r.fk_usuario_id_publicador,
+							fk_recurso_id: r.recurso_id,
+							tipo: 'Publicação',
+							status: 'pendente',
+							data_solicitacao:
+								r.data_publicacao || new Date().toISOString(),
+							usuarios: r.usuarios,
+							recursosEducacionais: r,
+						})
+					);
+
+					setSolicitacoes([...solData, ...pendingAsSolicitations]);
 					break;
 				}
 			}
@@ -889,6 +910,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 																item
 															)
 														)
+														.filter(
+															(r) =>
+																r.status !==
+																'pendente'
+														)
 														.map((r) => (
 															<tr
 																key={
@@ -1246,25 +1272,55 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 														<div className="flex items-center justify-between">
 															<div>
 																<p className="font-bold text-slate-900 text-lg">
-																	#
-																	{
-																		sol.solicitacao_id
-																	}{' '}
-																	· {sol.tipo}
+																	{sol.tipo} ·{' '}
+																	{sol
+																		.recursosEducacionais
+																		?.titulo ||
+																		'Recurso #' +
+																			sol.fk_recurso_id}
 																</p>
 																<p className="text-base text-slate-500 mt-1">
-																	Ref. Recurso
-																	ID:{' '}
-																	<span className="font-mono bg-slate-100 px-1 rounded">
-																		{
-																			sol.fk_recurso_id
-																		}
+																	Solicitado
+																	por:{' '}
+																	<span className="font-medium text-slate-700">
+																		{sol
+																			.usuarios
+																			?.nome ||
+																			'Usuário #' +
+																				sol.fk_colaborador_id}
 																	</span>
 																</p>
 															</div>
-															<span className="px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider border border-slate-200">
-																{sol.status}
-															</span>
+															<div className="flex items-center gap-4">
+																<span
+																	className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
+																		sol.status ===
+																		'pendente'
+																			? 'bg-amber-50 text-amber-700 border-amber-200'
+																			: 'bg-slate-100 text-slate-700 border-slate-200'
+																	}`}
+																>
+																	{sol.status}
+																</span>
+																{sol.status ===
+																	'pendente' && (
+																	<button
+																		onClick={() =>
+																			handleApprove(
+																				sol.fk_recurso_id
+																			)
+																		}
+																		className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors tooltip"
+																		title="Aprovar Publicação"
+																	>
+																		<CheckCircle
+																			size={
+																				24
+																			}
+																		/>
+																	</button>
+																)}
+															</div>
 														</div>
 													</li>
 												))}

@@ -218,7 +218,7 @@ const HomePage: React.FC<HomePageProps> = ({ materials, loading }) => {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-tedi-dark mb-6">Sobre o Repositório GERAS</h2>
             <p className="text-gray-600 leading-relaxed text-lg text-justify md:text-center">
-              O <strong className="text-tedi-dark">GERAS</strong> é uma iniciativa para centralizar materiais do Projeto TEDI da UTFPR.
+              O GERAS (Gerenciador de Recursos Educacionais Abertos e Sustentáveis) é uma iniciativa para centralizar e facilitar o acesso a todos os materiais criados pelo Projeto TEDI (Tecnologia e Educação para a Terceira Idade) da UTFPR. Nosso objetivo é oferecer um local único onde idosos, voluntários e a comunidade em geral possam encontrar, utilizar e compartilhar conhecimento, promovendo a inclusão digital e a autonomia da terceira idade.
             </p>
           </div>
         </section>
