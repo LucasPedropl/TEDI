@@ -1,20 +1,20 @@
 {
-  "name": "api-recursos-educacionais",
-  "version": "1.0.0",
-  "description": "API para CRUD de recursos educacionais",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "build": "echo 'No build step required'"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "@supabase/supabase-js": "^2.38.0",
-    "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  }
+	"name": "api-recursos-educacionais",
+	"version": "1.0.0",
+	"description": "API para CRUD de recursos educacionais",
+	"main": "src/index.js",
+	"scripts": {
+		"start": "node src/index.js",
+		"dev": "nodemon src/index.js",
+		"build": "echo 'No build step required'"
+	},
+	"dependencies": {
+		"express": "^4.18.2",
+		"cors": "^2.8.5",
+		"@supabase/supabase-js": "^2.38.0",
+		"dotenv": "^16.3.1"
+	},
+	"devDependencies": {
+		"nodemon": "^3.0.1"
+	}
 }
